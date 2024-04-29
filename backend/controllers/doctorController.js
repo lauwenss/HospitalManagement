@@ -14,6 +14,25 @@ module.exports.doctors = (req, res) => {
       .then((doctors) => res.send(doctors))
       .catch((error) => res.send(error));
   };
+
+  module.exports.getDoctorByName = (req, res) => {
+    const doctorName = req.query.name;
+  
+    if (!doctorName) {
+      return res.status(400).json({ error: "Doctor Name Parameter is Required" });
+    }
+    
+    Doctor.findOne({ $or: [{ lastName: doctorName }, {firstName: doctorName }] })
+      .then((doctor) => {
+        if (!doctor) {
+          return res.status(404).json({ error: "Doctor Not Found" });
+        }
+        res.status(200).json(doctor);
+      })
+      .catch((error) => {
+        res.status(500).json({ error: error.message || "Internal Server Error" });
+      });
+  };
   
   module.exports.createDoctor = (req, res) => {
     const { lastName, firstName, speciality, active } = req.body;
@@ -71,3 +90,4 @@ module.exports.doctors = (req, res) => {
         res.status(500).json({ error: error.message || "Internal Server Error" });
       });
   };
+ 
